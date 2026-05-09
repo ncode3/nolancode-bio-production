@@ -1,0 +1,9 @@
+config:
+  nolancode-bio-cloudflare-dns:domain: nolancode.bio
+  nolancode-bio-cloudflare-dns:azureHostname: zealous-flower-0552bf80f.7.azurestaticapps.net
+  nolancode-bio-cloudflare-dns:validationToken: _y67kml1clyl4lyrpb0lfraog4vrn4qk
+  nolancode-bio-cloudflare-dns:wwwValidationToken: _hfoieef43jsmtyvlbt3wejukm7iq3l3
+  nolancode-bio-cloudflare-dns:legacyWebsiteIps:
+    - 169.61.58.226
+    - 169.61.58.194
+  nolancode-bio-cloudflare-dns:legacyWwwTarget: ""

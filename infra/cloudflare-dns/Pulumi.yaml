@@ -1,0 +1,6 @@
+name: nolancode-bio-cloudflare-dns
+runtime:
+  name: python
+  options:
+    virtualenv: .venv
+description: Cloudflare DNS cutover for nolancode.bio to Azure Static Web Apps

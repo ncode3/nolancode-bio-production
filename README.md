@@ -96,6 +96,54 @@ The current live domain is still on the legacy host until Azure cutover is compl
   - autodiscover
   - any verification TXT records
 
+## Pulumi Cloudflare DNS Cutover
+
+The DNS cutover project lives in:
+
+- `infra/cloudflare-dns/`
+
+It is designed to manage only the website records for `nolancode.bio`:
+
+- remove legacy website A records for apex and `www`
+- add Azure Static Web Apps validation TXT records
+- add Azure Static Web Apps apex and `www` CNAME records
+
+It does not target mail records such as:
+
+- MX
+- SPF
+- DKIM
+- DMARC
+- autodiscover
+- existing verification TXT records
+
+Current blocker:
+
+- the provided Cloudflare token can edit DNS in an existing zone
+- it cannot create a new Cloudflare zone for `nolancode.bio`
+- `nolancode.bio` is still on Name.com nameservers, not Cloudflare
+
+Current Azure validation values:
+
+- Azure default hostname: `zealous-flower-0552bf80f.7.azurestaticapps.net`
+- apex token: `_y67kml1clyl4lyrpb0lfraog4vrn4qk`
+- `www` token: `_hfoieef43jsmtyvlbt3wejukm7iq3l3`
+
+When a Cloudflare zone exists, use:
+
+```bash
+cd infra/cloudflare-dns
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements.txt
+export CLOUDFLARE_API_TOKEN="<cloudflare-api-token>"
+pulumi login
+pulumi stack init dev
+pulumi config set cloudflareZoneId "<cloudflare-zone-id>"
+pulumi preview
+pulumi up
+```
+
 ## Local Preview
 
 Run a local static server from the repo root:
