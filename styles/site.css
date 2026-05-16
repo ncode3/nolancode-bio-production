@@ -354,16 +354,54 @@ textarea {
     background: rgba(255, 255, 255, 0.02);
 }
 
+.section-featured-talk {
+    background:
+        linear-gradient(135deg, rgba(212, 175, 98, 0.08), rgba(138, 164, 194, 0.06)),
+        rgba(255, 255, 255, 0.02);
+}
+
 .section-heading {
     margin-bottom: 32px;
 }
 
 .split-grid,
-.booking-grid {
+.booking-grid,
+.featured-talk-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
     gap: 36px;
     align-items: start;
+}
+
+.featured-talk-grid {
+    align-items: center;
+}
+
+.featured-talk-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.featured-talk-meta span {
+    padding: 8px 12px;
+    border: 1px solid rgba(212, 175, 98, 0.26);
+    border-radius: 999px;
+    background: rgba(212, 175, 98, 0.08);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.featured-talk-poster {
+    margin: 0;
+}
+
+.featured-talk-poster img {
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: var(--shadow);
 }
 
 .stat-stack {
@@ -697,6 +735,7 @@ textarea {
     .hero-grid,
     .split-grid,
     .booking-grid,
+    .featured-talk-grid,
     .rider-grid,
     .print-grid,
     .field-row,
