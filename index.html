@@ -487,6 +487,7 @@
                     </div>
                 </div>
                 <form id="booking-form" class="booking-form">
+                    <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" hidden>
                     <div class="field-row">
                         <label>
                             <span>Name</span>
@@ -500,7 +501,7 @@
                     <div class="field-row">
                         <label>
                             <span>Email</span>
-                            <input type="email" name="email" required>
+                            <input type="email" name="email" maxlength="254" required>
                         </label>
                         <label>
                             <span>Event Date</span>
@@ -549,7 +550,7 @@
                     </label>
                     <label>
                         <span>Message</span>
-                        <textarea name="message" rows="6" required></textarea>
+                        <textarea name="message" rows="6" maxlength="2000" required></textarea>
                     </label>
                     <button type="submit" class="button button-primary">Submit Booking Request</button>
                     <p class="form-note">This site does not store form submissions. The request opens in your mail client so nothing sensitive is posted through a public web form.</p>
