@@ -2,7 +2,7 @@
 
 [![Azure Static Web Apps CI/CD](https://github.com/ncode3/nolancode-bio-production/actions/workflows/azure-static-web-apps-nolancode-bio.yml/badge.svg)](https://github.com/ncode3/nolancode-bio-production/actions/workflows/azure-static-web-apps-nolancode-bio.yml)
 
-Static speaker and press-kit website for `nolancode.bio`.
+Static speaker and press-kit website.
 
 ## Purpose
 
@@ -42,12 +42,11 @@ This site is configured for Azure Static Web Apps with GitHub as source control.
 
 This site is intentionally static and low-risk.
 
-- No server-side runtime
+- Azure Static Web Apps serverless API for contact form submissions
 - No client-side secrets
 - No third-party JavaScript
 - No analytics scripts
-- No form backend storing visitor data
-- Booking form uses a local `mailto:` handoff so submission data is not posted to a public API
+- Booking form posts to a same-origin backend without exposing the destination email address
 - Content Security Policy is set with a restrictive meta policy
 - No client-side secrets
 - No analytics scripts
@@ -61,7 +60,8 @@ This site is intentionally static and low-risk.
 - `rider.html` - Speaker rider
 - `rates.html` - Speaking rates
 - `styles/site.css` - Shared styles
-- `scripts/site.js` - Mobile navigation and booking form handoff
+- `scripts/site.js` - Mobile navigation and booking form submission
+- `api/submit-booking/` - Server-side contact handler
 - `images/` - Headshots and legacy site imagery
 
 ## Local Preview
@@ -102,7 +102,7 @@ The DNS cutover project lives in:
 
 - `infra/cloudflare-dns/`
 
-It is designed to manage only the website records for `nolancode.bio`:
+It is designed to manage only this website's DNS records:
 
 - remove legacy website A records for apex and `www`
 - add Azure Static Web Apps validation TXT records
@@ -120,8 +120,8 @@ It does not target mail records such as:
 Current blocker:
 
 - the provided Cloudflare token can edit DNS in an existing zone
-- it cannot create a new Cloudflare zone for `nolancode.bio`
-- `nolancode.bio` is still on Name.com nameservers, not Cloudflare
+- it cannot create a new Cloudflare zone
+- the domain is still on Name.com nameservers, not Cloudflare
 
 Current Azure validation values:
 
@@ -161,4 +161,4 @@ http://localhost:8000
 ## Notes
 
 - The downloadable press-kit links open printable HTML pages until final PDF assets are produced.
-- If you later add a real form backend, do not expose API keys or SMTP credentials client-side.
+- Contact delivery requires Azure Static Web Apps app settings for `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL`, `RESEND_API_KEY`, `TURNSTILE_SITE_KEY`, and `TURNSTILE_SECRET_KEY`.
