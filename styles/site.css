@@ -611,6 +611,11 @@ textarea {
     outline-offset: 2px;
 }
 
+.turnstile-wrap {
+    margin: 4px 0 16px;
+    min-height: 65px;
+}
+
 .form-status {
     margin: 8px 0 0;
     color: var(--success);

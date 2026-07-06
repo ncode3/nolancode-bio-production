@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'none'; upgrade-insecure-requests">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="color-scheme" content="dark light">
     <title>Nolan | AI Infrastructure, Robotics, Quantum &amp; Workforce Speaker</title>
@@ -481,12 +481,12 @@
                         For speaking, workshops, executive briefings, media requests, or partnership inquiries, please include the event date, audience size, desired format, recording plans, available budget range, and the strategic outcome the engagement should support.
                     </p>
                     <div class="contact-card">
-                        <p><strong>Email:</strong> <a href="mailto:nolan@atlanta-robotics.org">nolan@atlanta-robotics.org</a></p>
+                        <p>Use the contact form below.</p>
                         <p><strong>Location:</strong> Atlanta, Georgia</p>
                         <p><strong>Focus:</strong> AI infrastructure, robotics, edge AI, quantum literacy, workforce development</p>
                     </div>
                 </div>
-                <form id="booking-form" class="booking-form">
+                <form id="booking-form" class="booking-form" action="/api/submit-booking" method="post">
                     <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" hidden>
                     <div class="field-row">
                         <label>
@@ -552,8 +552,11 @@
                         <span>Message</span>
                         <textarea name="message" rows="6" maxlength="2000" required></textarea>
                     </label>
+                    <div class="turnstile-wrap">
+                        <div id="turnstile-widget"></div>
+                    </div>
                     <button type="submit" class="button button-primary">Submit Booking Request</button>
-                    <p class="form-note">This site does not store form submissions. The request opens in your mail client so nothing sensitive is posted through a public web form.</p>
+                    <p class="form-note">This form sends booking requests through a protected server-side handler.</p>
                     <p id="form-status" class="form-status" aria-live="polite"></p>
                 </form>
             </div>
@@ -570,11 +573,12 @@
                 <a href="speaker-kit.html">Speaker Kit</a>
                 <a href="rates.html">Fees</a>
                 <a href="rider.html">Rider</a>
-                <a href="mailto:nolan@atlanta-robotics.org">Contact</a>
+                <a href="#book">Contact</a>
             </div>
         </div>
     </footer>
 
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
     <script src="scripts/site.js"></script>
 </body>
 </html>

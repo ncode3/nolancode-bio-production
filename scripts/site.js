@@ -14,6 +14,7 @@ const formStatus = document.getElementById("form-status");
 const maxEmailLength = 254;
 const maxMessageLength = 2000;
 const maxAllowedUrls = 2;
+let turnstileWidgetId = null;
 
 function normalizeValue(value) {
     return String(value || "").trim();
@@ -32,14 +33,60 @@ function setFormError(message) {
     formStatus.textContent = message;
 }
 
+function waitForTurnstile() {
+    return new Promise((resolve, reject) => {
+        const startedAt = Date.now();
+        const timer = window.setInterval(() => {
+            if (window.turnstile) {
+                window.clearInterval(timer);
+                resolve(window.turnstile);
+                return;
+            }
+
+            if (Date.now() - startedAt > 8000) {
+                window.clearInterval(timer);
+                reject(new Error("Contact verification is unavailable."));
+            }
+        }, 100);
+    });
+}
+
+async function loadTurnstile() {
+    const widget = document.getElementById("turnstile-widget");
+    if (!widget) return;
+
+    try {
+        const response = await fetch("/api/contact-config", {
+            headers: {
+                "Accept": "application/json"
+            }
+        });
+
+        if (!response.ok) throw new Error("Contact verification is unavailable.");
+        const config = await response.json();
+        if (!config.siteKey) throw new Error("Contact verification is unavailable.");
+
+        const turnstile = await waitForTurnstile();
+        if (turnstileWidgetId !== null) return;
+        turnstileWidgetId = turnstile.render(widget, {
+            sitekey: config.siteKey
+        });
+    } catch (_error) {
+        setFormError("Contact verification is unavailable. Please try again later.");
+    }
+}
+
 if (bookingForm && formStatus) {
-    bookingForm.addEventListener("submit", (event) => {
+    loadTurnstile();
+
+    bookingForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
         const data = new FormData(bookingForm);
         const email = normalizeValue(data.get("email"));
         const message = normalizeValue(data.get("message"));
         const honeypot = normalizeValue(data.get("_gotcha"));
+        const turnstileToken = normalizeValue(data.get("cf-turnstile-response"));
 
         if (honeypot) {
             setFormError("Your request could not be submitted.");
@@ -66,27 +113,51 @@ if (bookingForm && formStatus) {
             return;
         }
 
-        const body = [
-            `Name: ${data.get("name") || ""}`,
-            `Organization: ${data.get("organization") || ""}`,
-            `Email: ${email}`,
-            `Event Date: ${data.get("eventDate") || ""}`,
-            `Event Location: ${data.get("eventLocation") || ""}`,
-            `Audience Size: ${data.get("audienceSize") || ""}`,
-            `Format: ${data.get("format") || ""}`,
-            `Budget Range: ${data.get("budget") || ""}`,
-            `Inquiry Type: ${data.get("inquiryType") || ""}`,
-            `Recording Plans: ${data.get("recordingPlans") || ""}`,
-            "",
-            "Message:",
-            message
-        ].join("\n");
+        if (!turnstileToken) {
+            setFormError("Please complete the verification challenge.");
+            return;
+        }
 
-        const subject = encodeURIComponent(`Booking Request - ${data.get("organization") || "Event Inquiry"}`);
-        const mailtoBody = encodeURIComponent(body);
-        const mailto = `mailto:nolan@atlanta-robotics.org?subject=${subject}&body=${mailtoBody}`;
+        const submitButton = bookingForm.querySelector("button[type='submit']");
+        if (submitButton) submitButton.disabled = true;
+        formStatus.textContent = "Submitting...";
 
-        window.location.href = mailto;
-        formStatus.textContent = "Your mail client should open with the booking request prefilled.";
+        try {
+            const response = await fetch(bookingForm.action, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: normalizeValue(data.get("name")),
+                    organization: normalizeValue(data.get("organization")),
+                    email,
+                    eventDate: normalizeValue(data.get("eventDate")),
+                    eventLocation: normalizeValue(data.get("eventLocation")),
+                    audienceSize: normalizeValue(data.get("audienceSize")),
+                    format: normalizeValue(data.get("format")),
+                    budget: normalizeValue(data.get("budget")),
+                    inquiryType: normalizeValue(data.get("inquiryType")),
+                    recordingPlans: normalizeValue(data.get("recordingPlans")),
+                    message,
+                    _gotcha: honeypot,
+                    turnstileToken
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({}));
+                setFormError(error.message || "Your request could not be submitted.");
+                return;
+            }
+
+            bookingForm.reset();
+            if (window.turnstile && turnstileWidgetId !== null) window.turnstile.reset(turnstileWidgetId);
+            formStatus.textContent = "Thanks. Your request was submitted.";
+        } catch (_error) {
+            setFormError("Your request could not be submitted. Please try again later.");
+        } finally {
+            if (submitButton) submitButton.disabled = false;
+        }
     });
 }
