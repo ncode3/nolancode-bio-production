@@ -441,6 +441,14 @@ textarea {
     align-content: center;
 }
 
+.summit-logo {
+    width: 100%;
+    padding: 18px;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
 .featured-talk-poster {
     margin: 0;
 }
