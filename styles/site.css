@@ -377,6 +377,37 @@ textarea {
     align-items: center;
 }
 
+.upcoming-talks-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.featured-talk-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+    gap: 28px;
+    align-items: center;
+    padding: 26px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+}
+
+.featured-talk-card-primary {
+    border-color: rgba(212, 175, 98, 0.32);
+    background:
+        linear-gradient(135deg, rgba(212, 175, 98, 0.09), rgba(138, 164, 194, 0.05)),
+        var(--panel);
+}
+
+.featured-talk-card h3 {
+    margin: 0;
+    font-size: clamp(1.55rem, 3vw, 2.4rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+}
+
 .featured-talk-meta {
     display: flex;
     flex-wrap: wrap;
@@ -392,6 +423,22 @@ textarea {
     color: var(--text);
     font-size: 0.9rem;
     font-weight: 700;
+}
+
+.featured-talk-list {
+    margin: 22px 0 0;
+    padding-left: 20px;
+    color: var(--muted);
+}
+
+.featured-talk-list li + li {
+    margin-top: 8px;
+}
+
+.featured-talk-side {
+    display: grid;
+    gap: 18px;
+    align-content: center;
 }
 
 .featured-talk-poster {
@@ -741,6 +788,7 @@ textarea {
     .split-grid,
     .booking-grid,
     .featured-talk-grid,
+    .featured-talk-card,
     .rider-grid,
     .print-grid,
     .field-row,
