@@ -16,6 +16,16 @@ function json(status, body) {
   };
 }
 
+function logFailure(context, reason, req, extra = {}) {
+  const ip = getClientIp(req);
+  context.log.warn(`contact_form_failed ${JSON.stringify({
+    reason,
+    ip,
+    userAgent: normalize(req.headers["user-agent"]),
+    ...extra
+  })}`);
+}
+
 function normalize(value) {
   return String(value || "").trim();
 }
@@ -55,7 +65,8 @@ function isRateLimited(ip) {
 
 async function verifyTurnstile(token, ip) {
   const secret = process.env.TURNSTILE_SECRET_KEY;
-  if (!secret || !token) return false;
+  if (!secret) return true;
+  if (!token) return false;
 
   const formData = new URLSearchParams();
   formData.set("secret", secret);
@@ -76,10 +87,14 @@ async function verifyTurnstile(token, ip) {
 }
 
 function validatePayload(payload) {
+  const name = normalize(payload.name);
+  const organization = normalize(payload.organization);
   const email = normalize(payload.email);
   const message = normalize(payload.message);
 
   if (normalize(payload._gotcha)) return "Your request could not be submitted.";
+  if (!name) return "Please enter your name.";
+  if (!organization) return "Please enter your organization.";
   if (!email || email.length > MAX_EMAIL_LENGTH || !isValidEmail(email)) return "Please enter a valid email address.";
   if (!message) return "Please include a short message.";
   if (message.length > MAX_MESSAGE_LENGTH) return `Please keep the message under ${MAX_MESSAGE_LENGTH} characters.`;
@@ -109,15 +124,7 @@ function buildEmail(payload) {
   ].join("\n");
 }
 
-async function sendEmail(payload) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.CONTACT_TO_EMAIL;
-  const from = process.env.CONTACT_FROM_EMAIL;
-
-  if (!apiKey || !to || !from) {
-    throw new Error("Contact email delivery is not configured.");
-  }
-
+async function sendWithResend(payload, apiKey, to, from) {
   const organization = normalize(payload.organization) || "Event Inquiry";
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -135,8 +142,46 @@ async function sendEmail(payload) {
   });
 
   if (!response.ok) {
-    throw new Error("Contact email delivery failed.");
+    const responseText = await response.text().catch(() => "");
+    throw new Error(`resend_http_${response.status}:${responseText.slice(0, 120)}`);
   }
+}
+
+async function sendWithSendGrid(payload, apiKey, to, from) {
+  const organization = normalize(payload.organization) || "Event Inquiry";
+  const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      personalizations: [{ to: [{ email: to }] }],
+      from: { email: from, name: "Nolan Code" },
+      reply_to: { email: normalize(payload.email), name: normalize(payload.name) },
+      subject: `Booking Request - ${organization}`,
+      content: [{ type: "text/plain", value: buildEmail(payload) }]
+    })
+  });
+
+  if (!response.ok) {
+    const responseText = await response.text().catch(() => "");
+    throw new Error(`sendgrid_http_${response.status}:${responseText.slice(0, 120)}`);
+  }
+}
+
+async function sendEmail(payload) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const sendGridApiKey = process.env.SENDGRID_API_KEY;
+  const to = process.env.CONTACT_TO_EMAIL;
+  const from = process.env.CONTACT_FROM_EMAIL;
+
+  if (!to || !from || (!apiKey && !sendGridApiKey)) {
+    throw new Error("contact_delivery_not_configured");
+  }
+
+  if (apiKey) return sendWithResend(payload, apiKey, to, from);
+  return sendWithSendGrid(payload, sendGridApiKey, to, from);
 }
 
 module.exports = async function (context, req) {
@@ -147,6 +192,7 @@ module.exports = async function (context, req) {
 
   const ip = getClientIp(req);
   if (isRateLimited(ip)) {
+    logFailure(context, "rate_limited", req);
     context.res = json(429, { message: "Too many requests. Please try again later." });
     return;
   }
@@ -154,12 +200,22 @@ module.exports = async function (context, req) {
   const payload = req.body || {};
   const validationError = validatePayload(payload);
   if (validationError) {
+    logFailure(context, "validation", req, {
+      hasName: Boolean(normalize(payload.name)),
+      hasOrganization: Boolean(normalize(payload.organization)),
+      hasEmail: Boolean(normalize(payload.email)),
+      hasMessage: Boolean(normalize(payload.message)),
+      messageLength: normalize(payload.message).length,
+      urlCount: countUrls(normalize(payload.message)),
+      honeypotFilled: Boolean(normalize(payload._gotcha))
+    });
     context.res = json(400, { message: validationError });
     return;
   }
 
   const turnstileOk = await verifyTurnstile(normalize(payload.turnstileToken), ip);
   if (!turnstileOk) {
+    logFailure(context, "turnstile", req);
     context.res = json(400, { message: "Please complete the verification challenge." });
     return;
   }
@@ -168,7 +224,9 @@ module.exports = async function (context, req) {
     await sendEmail(payload);
     context.res = json(200, { ok: true });
   } catch (error) {
-    context.log.error(error.message);
+    logFailure(context, "delivery", req, {
+      error: error.message
+    });
     context.res = json(500, { message: "Your request could not be submitted. Please try again later." });
   }
 };

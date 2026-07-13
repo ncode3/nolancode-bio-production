@@ -11,14 +11,17 @@ module.exports = async function (context, req) {
     return;
   }
 
+  const siteKey = process.env.TURNSTILE_SITE_KEY || "";
+
   context.res = {
-    status: process.env.TURNSTILE_SITE_KEY ? 200 : 503,
+    status: 200,
     headers: {
       "Content-Type": "application/json",
       "Cache-Control": "no-store"
     },
     body: {
-      siteKey: process.env.TURNSTILE_SITE_KEY || ""
+      siteKey,
+      turnstileEnabled: Boolean(siteKey)
     }
   };
 };
