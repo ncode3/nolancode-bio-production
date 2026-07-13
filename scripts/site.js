@@ -15,6 +15,8 @@ const maxEmailLength = 254;
 const maxMessageLength = 2000;
 const maxAllowedUrls = 2;
 let turnstileWidgetId = null;
+let isSubmitting = false;
+let turnstileEnabled = false;
 
 function normalizeValue(value) {
     return String(value || "").trim();
@@ -31,6 +33,12 @@ function countUrls(message) {
 
 function setFormError(message) {
     formStatus.textContent = message;
+    formStatus.dataset.state = "error";
+}
+
+function setFormStatus(message, state = "info") {
+    formStatus.textContent = message;
+    formStatus.dataset.state = state;
 }
 
 function waitForTurnstile() {
@@ -64,15 +72,21 @@ async function loadTurnstile() {
 
         if (!response.ok) throw new Error("Contact verification is unavailable.");
         const config = await response.json();
-        if (!config.siteKey) throw new Error("Contact verification is unavailable.");
+        if (!config.siteKey) {
+            widget.hidden = true;
+            turnstileEnabled = false;
+            return;
+        }
 
         const turnstile = await waitForTurnstile();
         if (turnstileWidgetId !== null) return;
+        turnstileEnabled = true;
         turnstileWidgetId = turnstile.render(widget, {
             sitekey: config.siteKey
         });
     } catch (_error) {
-        setFormError("Contact verification is unavailable. Please try again later.");
+        widget.hidden = true;
+        turnstileEnabled = false;
     }
 }
 
@@ -82,7 +96,11 @@ if (bookingForm && formStatus) {
     bookingForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
+        if (isSubmitting) return;
+
         const data = new FormData(bookingForm);
+        const name = normalizeValue(data.get("name"));
+        const organization = normalizeValue(data.get("organization"));
         const email = normalizeValue(data.get("email"));
         const message = normalizeValue(data.get("message"));
         const honeypot = normalizeValue(data.get("_gotcha"));
@@ -90,6 +108,16 @@ if (bookingForm && formStatus) {
 
         if (honeypot) {
             setFormError("Your request could not be submitted.");
+            return;
+        }
+
+        if (!name) {
+            setFormError("Please enter your name.");
+            return;
+        }
+
+        if (!organization) {
+            setFormError("Please enter your organization.");
             return;
         }
 
@@ -113,14 +141,15 @@ if (bookingForm && formStatus) {
             return;
         }
 
-        if (!turnstileToken) {
+        if (turnstileEnabled && !turnstileToken) {
             setFormError("Please complete the verification challenge.");
             return;
         }
 
         const submitButton = bookingForm.querySelector("button[type='submit']");
+        isSubmitting = true;
         if (submitButton) submitButton.disabled = true;
-        formStatus.textContent = "Submitting...";
+        setFormStatus("Submitting...", "info");
 
         try {
             const response = await fetch(bookingForm.action, {
@@ -129,8 +158,8 @@ if (bookingForm && formStatus) {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    name: normalizeValue(data.get("name")),
-                    organization: normalizeValue(data.get("organization")),
+                    name,
+                    organization,
                     email,
                     eventDate: normalizeValue(data.get("eventDate")),
                     eventLocation: normalizeValue(data.get("eventLocation")),
@@ -153,10 +182,11 @@ if (bookingForm && formStatus) {
 
             bookingForm.reset();
             if (window.turnstile && turnstileWidgetId !== null) window.turnstile.reset(turnstileWidgetId);
-            formStatus.textContent = "Thanks. Your request was submitted.";
+            setFormStatus("Thanks. Your request was submitted.", "success");
         } catch (_error) {
             setFormError("Your request could not be submitted. Please try again later.");
         } finally {
+            isSubmitting = false;
             if (submitButton) submitButton.disabled = false;
         }
     });
