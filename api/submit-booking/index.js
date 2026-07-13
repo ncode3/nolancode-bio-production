@@ -4,6 +4,7 @@ const MAX_ALLOWED_URLS = 2;
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 const RATE_LIMIT_MAX_REQUESTS = 5;
 const rateLimitStore = new Map();
+let EmailClient;
 
 function json(status, body) {
   return {
@@ -170,16 +171,43 @@ async function sendWithSendGrid(payload, apiKey, to, from) {
   }
 }
 
+async function sendWithAzureCommunicationEmail(payload, connectionString, to, from) {
+  if (!EmailClient) {
+    ({ EmailClient } = require("@azure/communication-email"));
+  }
+
+  const organization = normalize(payload.organization) || "Event Inquiry";
+  const client = new EmailClient(connectionString);
+  const poller = await client.beginSend({
+    senderAddress: from,
+    content: {
+      subject: `Booking Request - ${organization}`,
+      plainText: buildEmail(payload)
+    },
+    recipients: {
+      to: [{ address: to }]
+    },
+    replyTo: [{ address: normalize(payload.email), displayName: normalize(payload.name) }]
+  });
+  const result = await poller.pollUntilDone();
+
+  if (result.status !== "Succeeded") {
+    throw new Error(`azure_email_${result.status || "unknown"}`);
+  }
+}
+
 async function sendEmail(payload) {
+  const azureConnectionString = process.env.ACS_EMAIL_CONNECTION_STRING;
   const apiKey = process.env.RESEND_API_KEY;
   const sendGridApiKey = process.env.SENDGRID_API_KEY;
   const to = process.env.CONTACT_TO_EMAIL;
   const from = process.env.CONTACT_FROM_EMAIL;
 
-  if (!to || !from || (!apiKey && !sendGridApiKey)) {
+  if (!to || !from || (!azureConnectionString && !apiKey && !sendGridApiKey)) {
     throw new Error("contact_delivery_not_configured");
   }
 
+  if (azureConnectionString) return sendWithAzureCommunicationEmail(payload, azureConnectionString, to, from);
   if (apiKey) return sendWithResend(payload, apiKey, to, from);
   return sendWithSendGrid(payload, sendGridApiKey, to, from);
 }

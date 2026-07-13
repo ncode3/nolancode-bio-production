@@ -161,7 +161,8 @@ http://localhost:8000
 ## Notes
 
 - The downloadable press-kit links open printable HTML pages until final PDF assets are produced.
-- Contact delivery requires Azure Static Web Apps app settings for `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL`, and either `RESEND_API_KEY` or `SENDGRID_API_KEY`.
+- Contact delivery requires Azure Static Web Apps app settings for `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL`, and one delivery provider credential: `ACS_EMAIL_CONNECTION_STRING`, `RESEND_API_KEY`, or `SENDGRID_API_KEY`.
+- `ACS_EMAIL_CONNECTION_STRING` is preferred for production because it keeps delivery inside Azure.
 - Cloudflare Turnstile is enabled when `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` are configured. If those keys are not configured, the form still uses honeypot, server-side validation, rate limiting, and URL spam rejection.
 - `CONTACT_TO_EMAIL` is the private destination inbox for submissions. It must be configured as a server-side Azure Static Web Apps app setting only, never in HTML, frontend JavaScript, or a public environment variable.
 - `CONTACT_FROM_EMAIL` must be a sender address verified by the configured Resend or SendGrid account.
