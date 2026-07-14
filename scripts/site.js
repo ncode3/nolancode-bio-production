@@ -51,9 +51,9 @@ function waitForTurnstile() {
                 return;
             }
 
-            if (Date.now() - startedAt > 8000) {
+            if (Date.now() - startedAt > 5000) {
                 window.clearInterval(timer);
-                reject(new Error("Contact verification is unavailable."));
+                reject(new Error("Turnstile did not load."));
             }
         }, 100);
     });
@@ -63,14 +63,19 @@ async function loadTurnstile() {
     const widget = document.getElementById("turnstile-widget");
     if (!widget) return;
 
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 5000);
+
     try {
         const response = await fetch("/api/contact-config", {
             headers: {
                 "Accept": "application/json"
-            }
+            },
+            cache: "no-store",
+            signal: controller.signal
         });
 
-        if (!response.ok) throw new Error("Contact verification is unavailable.");
+        if (!response.ok) throw new Error("Turnstile configuration unavailable.");
         const config = await response.json();
         if (!config.siteKey) {
             widget.hidden = true;
@@ -82,15 +87,26 @@ async function loadTurnstile() {
         if (turnstileWidgetId !== null) return;
         turnstileEnabled = true;
         turnstileWidgetId = turnstile.render(widget, {
-            sitekey: config.siteKey
+            sitekey: config.siteKey,
+            "error-callback": () => {
+                turnstileEnabled = false;
+                widget.hidden = true;
+            },
+            "unsupported-callback": () => {
+                turnstileEnabled = false;
+                widget.hidden = true;
+            }
         });
     } catch (_error) {
         widget.hidden = true;
         turnstileEnabled = false;
+    } finally {
+        window.clearTimeout(timeout);
     }
 }
 
 if (bookingForm && formStatus) {
+    setFormStatus("", "info");
     loadTurnstile();
 
     bookingForm.addEventListener("submit", async (event) => {
@@ -147,6 +163,8 @@ if (bookingForm && formStatus) {
         }
 
         const submitButton = bookingForm.querySelector("button[type='submit']");
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 20000);
         isSubmitting = true;
         if (submitButton) submitButton.disabled = true;
         setFormStatus("Submitting...", "info");
@@ -155,8 +173,11 @@ if (bookingForm && formStatus) {
             const response = await fetch(bookingForm.action, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
                 },
+                cache: "no-store",
+                signal: controller.signal,
                 body: JSON.stringify({
                     name,
                     organization,
@@ -183,9 +204,14 @@ if (bookingForm && formStatus) {
             bookingForm.reset();
             if (window.turnstile && turnstileWidgetId !== null) window.turnstile.reset(turnstileWidgetId);
             setFormStatus("Thanks. Your request was submitted.", "success");
-        } catch (_error) {
-            setFormError("Your request could not be submitted. Please try again later.");
+        } catch (error) {
+            if (error.name === "AbortError") {
+                setFormError("The request timed out. Please try again.");
+            } else {
+                setFormError("Your request could not be submitted. Please try again later.");
+            }
         } finally {
+            window.clearTimeout(timeout);
             isSubmitting = false;
             if (submitButton) submitButton.disabled = false;
         }
