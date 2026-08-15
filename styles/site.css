@@ -277,6 +277,13 @@ textarea {
     box-shadow: var(--shadow);
 }
 
+.hero-headshot {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: center top;
+}
+
 .panel-card,
 .stat-card,
 .topic-card,
@@ -380,6 +387,117 @@ textarea {
 .upcoming-talks-grid {
     display: grid;
     gap: 20px;
+}
+
+.impact-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin: 34px 0 22px;
+}
+
+.impact-strip article {
+    display: grid;
+    gap: 4px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+}
+
+.impact-strip strong {
+    color: var(--accent);
+    font-size: clamp(1.65rem, 3vw, 2.35rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+}
+
+.impact-strip span {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.recent-stage-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.stage-story {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+    gap: 28px;
+    align-items: center;
+    padding: 26px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+}
+
+.stage-story-primary {
+    border-color: rgba(212, 175, 98, 0.32);
+    background:
+        linear-gradient(135deg, rgba(212, 175, 98, 0.09), rgba(138, 164, 194, 0.05)),
+        var(--panel);
+}
+
+.stage-photo,
+.gallery-card {
+    margin: 0;
+}
+
+.stage-photo img {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stage-story-copy h3 {
+    margin: 0;
+    font-size: clamp(1.55rem, 3vw, 2.4rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+}
+
+.stage-story-copy .button {
+    margin-top: 24px;
+}
+
+.speaking-gallery {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.gallery-card {
+    overflow: hidden;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+}
+
+.gallery-card-wide {
+    grid-column: 1 / -1;
+}
+
+.gallery-card img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+
+.gallery-card-wide img {
+    aspect-ratio: 16 / 7;
+}
+
+.gallery-card figcaption {
+    padding: 14px 16px 16px;
+    color: var(--muted);
+    font-size: 0.92rem;
 }
 
 .featured-talk-card {
@@ -767,6 +885,10 @@ textarea {
     .media-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
+    .impact-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 860px) {
@@ -797,6 +919,7 @@ textarea {
     .booking-grid,
     .featured-talk-grid,
     .featured-talk-card,
+    .stage-story,
     .rider-grid,
     .print-grid,
     .field-row,
@@ -823,8 +946,18 @@ textarea {
     .topics-grid,
     .workshop-grid,
     .press-grid,
-    .media-grid {
+    .media-grid,
+    .impact-strip,
+    .speaking-gallery {
         grid-template-columns: 1fr;
+    }
+
+    .gallery-card-wide {
+        grid-column: auto;
+    }
+
+    .gallery-card-wide img {
+        aspect-ratio: 4 / 3;
     }
 
     .button {
