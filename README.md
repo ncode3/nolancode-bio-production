@@ -1,169 +1,85 @@
-# Nolan Speaker Site
+# Nolan S. Code — Speaker and Press Site
 
 [![Azure Static Web Apps CI/CD](https://github.com/ncode3/nolancode-bio-production/actions/workflows/azure-static-web-apps-nolancode-bio.yml/badge.svg)](https://github.com/ncode3/nolancode-bio-production/actions/workflows/azure-static-web-apps-nolancode-bio.yml)
 
-Static speaker and press-kit website.
+Production source for [nolancode.bio](https://nolancode.bio), Nolan S. Code’s speaker, media, and advisory site.
 
 ## Purpose
 
-This site positions Nolan as a paid speaker, founder, educator, and infrastructure strategist across:
+The site presents speaking topics, press materials, engagement formats, rates, and booking information across:
 
-- AI infrastructure
-- robotics and edge AI
-- quantum literacy
-- workforce development
-- executive and institutional strategy
+- AI infrastructure;
+- robotics and edge AI;
+- quantum literacy;
+- workforce development;
+- executive and institutional strategy.
 
-## Framework
+## Architecture
 
-This app is plain static HTML.
+The public site is deliberately simple:
 
-- No Vite
-- No React
-- No Next.js
-- No Node build step
-- Publish root is the repository root
+- static HTML, CSS, and JavaScript;
+- Azure Static Web Apps hosting;
+- a same-origin serverless booking endpoint;
+- infrastructure as code for the DNS cutover;
+- no frontend framework or client-side secret handling.
 
-## Azure Static Web Apps Deployment
+## Repository Layout
 
-This site is configured for Azure Static Web Apps with GitHub as source control.
-
-- Azure resource name: `swa-nolancode-bio-prod`
-- Azure resource group: `rg-nolancode-bio-prod`
-- Production branch: `main`
-- Workflow: `.github/workflows/azure-static-web-apps-nolancode-bio.yml`
-- Build command: none
-- App location: `/`
-- Output directory: repository root
-- Build mode: `skip_app_build: true`
-- Azure default hostname: `https://zealous-flower-0552bf80f.7.azurestaticapps.net`
-
-## Security Posture
-
-This site is intentionally static and low-risk.
-
-- Azure Static Web Apps serverless API for contact form submissions
-- No client-side secrets
-- No third-party JavaScript
-- No analytics scripts
-- Booking form posts to a same-origin backend without exposing the destination email address
-- Content Security Policy is set with a restrictive meta policy
-- No client-side secrets
-- No analytics scripts
-- No CDN JavaScript
-
-## Structure
-
-- `index.html` - Main speaker homepage
-- `speaker-kit.html` - Printable one-sheet
-- `media-kit.html` - Media summary
-- `rider.html` - Speaker rider
-- `rates.html` - Speaking rates
-- `styles/site.css` - Shared styles
-- `scripts/site.js` - Mobile navigation and booking form submission
-- `api/submit-booking/` - Server-side contact handler
-- `images/` - Headshots and legacy site imagery
+```text
+index.html             Main speaker site
+speaker-kit.html       Printable speaker one-sheet
+media-kit.html         Media summary
+rider.html             Engagement requirements
+rates.html             Speaking rates
+api/submit-booking/    Server-side booking handler
+styles/                Shared presentation styles
+scripts/               Navigation and booking behavior
+infra/cloudflare-dns/  DNS infrastructure as code
+images/                Approved site and press assets
+```
 
 ## Local Preview
-
-Run a local static server from the repo root:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Then open:
+Open `http://localhost:8000`.
+
+## Deployment
+
+Pushes to `main` deploy through:
 
 ```text
-http://localhost:8000
+.github/workflows/azure-static-web-apps-nolancode-bio.yml
 ```
 
-## DNS Migration Notes
+The static site publishes from the repository root with no build step. Pull requests should verify navigation, booking behavior, mobile layout, printable pages, and external links before merge.
 
-The current live domain is still on the legacy host until Azure cutover is complete.
+## Server-Side Configuration
 
-- Current apex DNS resolves to `169.61.58.226` and `169.61.58.194`
-- Current nameservers are Name.com:
-  - `ns1cny.name.com`
-  - `ns2dqx.name.com`
-  - `ns3qty.name.com`
-  - `ns4hmp.name.com`
-- Mail records must be preserved:
-  - MX for Titan
-  - SPF
-  - DKIM
-  - DMARC
-  - autodiscover
-  - any verification TXT records
+Production credentials and destination addresses belong only in Azure application settings. Supported booking-delivery settings include:
 
-## Pulumi Cloudflare DNS Cutover
+- `CONTACT_TO_EMAIL`
+- `CONTACT_FROM_EMAIL`
+- one provider credential: `ACS_EMAIL_CONNECTION_STRING`, `RESEND_API_KEY`, or `SENDGRID_API_KEY`
+- `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` when Turnstile is enabled
 
-The DNS cutover project lives in:
+Never place these values in HTML, frontend JavaScript, screenshots, logs, or committed environment files.
 
-- `infra/cloudflare-dns/`
+## Security Controls
 
-It is designed to manage only this website's DNS records:
+- same-origin booking API;
+- honeypot and server-side input validation;
+- rate limiting and URL-spam checks;
+- optional Cloudflare Turnstile;
+- restrictive Content Security Policy;
+- no third-party frontend JavaScript;
+- no message-body logging.
 
-- remove legacy website A records for apex and `www`
-- add Azure Static Web Apps validation TXT records
-- add Azure Static Web Apps apex and `www` CNAME records
+Report security concerns privately through [SECURITY.md](SECURITY.md) when available.
 
-It does not target mail records such as:
+## Live Site
 
-- MX
-- SPF
-- DKIM
-- DMARC
-- autodiscover
-- existing verification TXT records
-
-Current blocker:
-
-- the provided Cloudflare token can edit DNS in an existing zone
-- it cannot create a new Cloudflare zone
-- the domain is still on Name.com nameservers, not Cloudflare
-
-Current Azure validation values:
-
-- Azure default hostname: `zealous-flower-0552bf80f.7.azurestaticapps.net`
-- apex token: `_y67kml1clyl4lyrpb0lfraog4vrn4qk`
-- `www` token: `_hfoieef43jsmtyvlbt3wejukm7iq3l3`
-
-When a Cloudflare zone exists, use:
-
-```bash
-cd infra/cloudflare-dns
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install -r requirements.txt
-export CLOUDFLARE_API_TOKEN="<cloudflare-api-token>"
-pulumi login
-pulumi stack init dev
-pulumi config set cloudflareZoneId "<cloudflare-zone-id>"
-pulumi preview
-pulumi up
-```
-
-## Local Preview
-
-Run a local static server from the repo root:
-
-```bash
-python3 -m http.server 8000
-```
-
-Then open:
-
-```text
-http://localhost:8000
-```
-
-## Notes
-
-- The downloadable press-kit links open printable HTML pages until final PDF assets are produced.
-- Contact delivery requires Azure Static Web Apps app settings for `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL`, and one delivery provider credential: `ACS_EMAIL_CONNECTION_STRING`, `RESEND_API_KEY`, or `SENDGRID_API_KEY`.
-- `ACS_EMAIL_CONNECTION_STRING` is preferred for production because it keeps delivery inside Azure.
-- Cloudflare Turnstile is enabled when `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` are configured. If those keys are not configured, the form still uses honeypot, server-side validation, rate limiting, and URL spam rejection.
-- `CONTACT_TO_EMAIL` is the private destination inbox for submissions. It must be configured as a server-side Azure Static Web Apps app setting only, never in HTML, frontend JavaScript, or a public environment variable.
-- `CONTACT_FROM_EMAIL` must be a sender address verified by the configured Resend or SendGrid account.
-- Failed submissions are logged server-side with reason, IP, user agent, field presence, message length, and URL count. Message content is not logged.
+- [nolancode.bio](https://nolancode.bio)
