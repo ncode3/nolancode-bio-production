@@ -6,12 +6,11 @@ Production source for [nolancode.bio](https://nolancode.bio), Nolan S. Code’s 
 
 ## Purpose
 
-The site presents speaking topics, press materials, engagement formats, rates, and booking information across:
+The site positions Nolan as a physical AI speaker and presents speaking topics, press materials, engagement formats, rates, and booking information across:
 
-- AI infrastructure;
-- robotics and edge AI;
-- quantum literacy;
-- workforce development;
+- physical AI, robotics, and edge systems;
+- AI infrastructure and energy;
+- workforce and community ownership;
 - executive and institutional strategy.
 
 ## Architecture
