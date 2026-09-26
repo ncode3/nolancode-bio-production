@@ -279,6 +279,7 @@ textarea {
 
 .hero-headshot {
     width: 100%;
+    height: auto;
     aspect-ratio: 4 / 5;
     object-fit: cover;
     object-position: center top;
@@ -448,6 +449,7 @@ textarea {
 
 .stage-photo img {
     width: 100%;
+    height: auto;
     aspect-ratio: 3 / 2;
     object-fit: cover;
     border-radius: var(--radius-md);
@@ -498,6 +500,31 @@ textarea {
     padding: 14px 16px 16px;
     color: var(--muted);
     font-size: 0.92rem;
+}
+
+.shiftai-gallery {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.shiftai-gallery img {
+    height: auto;
+    aspect-ratio: auto;
+}
+
+.photo-credit a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.stage-photo a:focus-visible,
+.gallery-card a:focus-visible {
+    display: block;
+    outline: 3px solid var(--accent);
+    outline-offset: -3px;
+}
+
+.headshot-frame img {
+    height: auto;
 }
 
 .featured-talk-card {
