@@ -109,12 +109,6 @@ function buildEmail(payload) {
     ["Organization", payload.organization],
     ["Email", payload.email],
     ["Event Date", payload.eventDate],
-    ["Event Location", payload.eventLocation],
-    ["Audience Size", payload.audienceSize],
-    ["Format", payload.format],
-    ["Budget Range", payload.budget],
-    ["Inquiry Type", payload.inquiryType],
-    ["Recording Plans", payload.recordingPlans]
   ];
 
   return [

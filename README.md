@@ -2,7 +2,7 @@
 
 [![Azure Static Web Apps CI/CD](https://github.com/ncode3/nolancode-bio-production/actions/workflows/azure-static-web-apps-nolancode-bio.yml/badge.svg)](https://github.com/ncode3/nolancode-bio-production/actions/workflows/azure-static-web-apps-nolancode-bio.yml)
 
-Production source for [nolancode.bio](https://nolancode.bio), Nolan S. Code’s speaker, media, and advisory site.
+Production source for [nolancode.bio](https://nolancode.bio), Nolan S. Code’s speaker booking and media site.
 
 ## Purpose
 
@@ -29,7 +29,7 @@ The public site is deliberately simple:
 index.html             Main speaker site
 speaker-kit.html       Printable speaker one-sheet
 media-kit.html         Media summary
-rider.html             Engagement requirements
+rider.html             Contracting details, shared after fit (noindex)
 rates.html             Speaking rates
 api/submit-booking/    Server-side booking handler
 styles/                Shared presentation styles
@@ -82,3 +82,7 @@ Report security concerns privately through [SECURITY.md](SECURITY.md) when avail
 ## Live Site
 
 - [nolancode.bio](https://nolancode.bio)
+
+## Speaking sample and media follow-up
+
+The homepage uses RenderATL’s July 8, 2026 conversation as a full-length speaking sample. It is not a completed 2–3 minute reel. TAG and RenderATL footage and approved organizer quotes were requested October 10. MIT has confirmed professional filming for October 30; a downloadable copy, captions, and reuse terms were requested. Add approved material when received. Never publish a draft testimonial as an organizer endorsement.
