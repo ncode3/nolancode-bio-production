@@ -193,8 +193,8 @@ if (videoButton && videoPlayer) {
     videoButton.hidden = false;
     videoButton.addEventListener("click", () => {
         const frame = document.createElement("iframe");
-        frame.src = "https://www.youtube-nocookie.com/embed/vqi_QDIVjsg?autoplay=1&cc_load_policy=1";
-        frame.title = "Nolan S. Code and William Hill: RenderATL conversation, July 8, 2026";
+        frame.src = "https://www.youtube-nocookie.com/embed/vqi_QDIVjsg?start=478&end=640&autoplay=1&cc_load_policy=1&rel=0";
+        frame.title = "Nolan S. Code: 2-minute, 42-second physical AI speaking highlight, RenderATL, July 8, 2026";
         frame.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
         frame.referrerPolicy = "strict-origin-when-cross-origin";
         frame.allowFullscreen = true;

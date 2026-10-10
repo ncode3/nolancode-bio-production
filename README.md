@@ -83,6 +83,8 @@ Report security concerns privately through [SECURITY.md](SECURITY.md) when avail
 
 - [nolancode.bio](https://nolancode.bio)
 
-## Speaking sample and media follow-up
+## Speaking highlight and source
 
-The homepage uses RenderATL’s July 8, 2026 conversation as a full-length speaking sample. It is not a completed 2–3 minute reel. TAG and RenderATL footage and approved organizer quotes were requested October 10. MIT has confirmed professional filming for October 30; a downloadable copy, captions, and reuse terms were requested. Add approved material when received. Never publish a draft testimonial as an organizer endorsement.
+The homepage plays a 2:42 excerpt (7:58–10:40) from RenderATL’s July 8, 2026 conversation. The privacy-enhanced YouTube player uses explicit start/end times. A readable transcript accompanies the excerpt. William Hill’s short quote is attributed to his public introduction at 2:29, not represented as a review of the August keynote.
+
+MIT has confirmed professional filming for October 30. Its future recording cannot exist before the event. TAG and RenderATL raw keynote footage and additional organizer comments were requested October 10; the published site does not depend on those assets.
