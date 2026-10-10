@@ -1,3 +1,4 @@
+document.documentElement.classList.add("js");
 const menuToggle = document.querySelector(".menu-toggle");
 const siteNav = document.querySelector(".site-nav");
 
@@ -162,12 +163,6 @@ if (bookingForm && formStatus) {
                     organization,
                     email,
                     eventDate: normalizeValue(data.get("eventDate")),
-                    eventLocation: normalizeValue(data.get("eventLocation")),
-                    audienceSize: normalizeValue(data.get("audienceSize")),
-                    format: normalizeValue(data.get("format")),
-                    budget: normalizeValue(data.get("budget")),
-                    inquiryType: normalizeValue(data.get("inquiryType")),
-                    recordingPlans: normalizeValue(data.get("recordingPlans")),
                     message,
                     _gotcha: honeypot,
                     turnstileToken
@@ -184,10 +179,26 @@ if (bookingForm && formStatus) {
             if (window.turnstile && turnstileWidgetId !== null) window.turnstile.reset(turnstileWidgetId);
             setFormStatus("Thanks. Your request was submitted.", "success");
         } catch (_error) {
-            setFormError("Your request could not be submitted. Please try again later.");
+            setFormError("Your request could not be submitted. Please email nolan@atlanta-robotics.org or schedule a call above.");
         } finally {
             isSubmitting = false;
             if (submitButton) submitButton.disabled = false;
         }
+    });
+}
+
+const videoButton = document.getElementById("play-speaking-video");
+const videoPlayer = document.getElementById("speaking-video");
+if (videoButton && videoPlayer) {
+    videoButton.hidden = false;
+    videoButton.addEventListener("click", () => {
+        const frame = document.createElement("iframe");
+        frame.src = "https://www.youtube-nocookie.com/embed/vqi_QDIVjsg?autoplay=1&cc_load_policy=1";
+        frame.title = "Nolan S. Code and William Hill: RenderATL conversation, July 8, 2026";
+        frame.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+        frame.referrerPolicy = "strict-origin-when-cross-origin";
+        frame.allowFullscreen = true;
+        videoPlayer.replaceChildren(frame);
+        frame.focus();
     });
 }
