@@ -88,3 +88,5 @@ Report security concerns privately through [SECURITY.md](SECURITY.md) when avail
 The homepage plays a 2:42 excerpt (7:58–10:40) from RenderATL’s July 8, 2026 conversation. The privacy-enhanced YouTube player uses explicit start/end times. A readable transcript accompanies the excerpt. William Hill’s short quote is attributed to his public introduction at 2:29, not represented as a review of the August keynote.
 
 MIT has confirmed professional filming for October 30. Its future recording cannot exist before the event. TAG and RenderATL raw keynote footage and additional organizer comments were requested October 10; the published site does not depend on those assets.
+
+Phil Kasiecki’s public LinkedIn feedback on the August RenderATL keynote is featured beside the video and in the speaker one-sheet. He is credited as an attendee, not an organizer. The excerpt is linked to the supplied public post.
