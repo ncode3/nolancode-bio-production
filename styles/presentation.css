@@ -1,0 +1,15 @@
+.presentation-clip {
+    margin-top: 40px;
+}
+
+.presentation-clip-media {
+    margin: 0;
+    min-width: 0;
+}
+
+.presentation-clip-video {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+}
